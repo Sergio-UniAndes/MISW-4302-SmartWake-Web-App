@@ -23,3 +23,7 @@ pnpm-debug.log*
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Vite
+dist-ssr/
+*.local
