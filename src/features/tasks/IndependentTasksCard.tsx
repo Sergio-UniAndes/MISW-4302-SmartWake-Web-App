@@ -3,30 +3,26 @@ import ButtonBase from '@mui/material/ButtonBase'
 import Card from '@mui/material/Card'
 import InputBase from '@mui/material/InputBase'
 import Typography from '@mui/material/Typography'
-import type { FormEvent } from 'react'
 import { AssetIcon } from '../../components/AssetIcon'
 import { hoverLayer, placeholderColor } from '../../theme'
 import { CardHeader } from './CardHeader'
 import { TaskList } from './TaskList'
 import { taskIcons } from './taskIcons'
-import type { Task } from './tasksStore'
+import { normalizeText, type Task } from './tasksStore'
 
 type IndependentTasksCardProps = {
   tasks: Task[]
-  quickTitle: string
-  onQuickTitleChange: (value: string) => void
-  /** Opens the add-task dialog, prefilled with `title` (empty from the main button). */
-  onAddTask: (title: string) => void
+  searchQuery: string
+  onSearchQueryChange: (value: string) => void
+  onAddTask: () => void
 }
 
-const QUICK_INPUT_ID = 'quick-task-title'
+const SEARCH_INPUT_ID = 'independent-task-search'
 
 // Figma: "Right Setup Card" — independent tasks, with quick-add row, empty state and main add button.
-export function IndependentTasksCard({ tasks, quickTitle, onQuickTitleChange, onAddTask }: IndependentTasksCardProps) {
-  const handleQuickAdd = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    onAddTask(quickTitle.trim())
-  }
+export function IndependentTasksCard({ tasks, searchQuery, onSearchQueryChange, onAddTask }: IndependentTasksCardProps) {
+  const needle = normalizeText(searchQuery)
+  const visibleTasks = tasks.filter((task) => normalizeText(`${task.title} ${task.tag}`).includes(needle))
 
   return (
     <Card
@@ -38,12 +34,10 @@ export function IndependentTasksCard({ tasks, quickTitle, onQuickTitleChange, on
         id="independent-tasks-title"
         title="Tareas independientes"
         subtitle="Crea tareas individuales y flexibles"
-        badge="Personalizado"
+        badge={tasks.length === 0 ? 'Personalizado' : `${tasks.length} ${tasks.length === 1 ? 'tarea' : 'tareas'}`}
       />
 
       <Box
-        component="form"
-        onSubmit={handleQuickAdd}
         sx={{
           p: 2,
           display: 'flex',
@@ -55,16 +49,17 @@ export function IndependentTasksCard({ tasks, quickTitle, onQuickTitleChange, on
           borderRadius: 1.5,
         }}
       >
-        <Typography component="label" htmlFor={QUICK_INPUT_ID} variant="overline" sx={{ color: 'secondary.main' }}>
-          Nueva tarea
+        <Typography component="label" htmlFor={SEARCH_INPUT_ID} variant="overline" sx={{ color: 'secondary.main' }}>
+          Buscar
         </Typography>
         <Box sx={{ display: 'flex', gap: 1.5 }}>
           <InputBase
-            id={QUICK_INPUT_ID}
-            value={quickTitle}
-            onChange={(event) => onQuickTitleChange(event.target.value)}
-            placeholder="Escribe una nueva tarea para hoy..."
-            inputProps={{ autoComplete: 'off', maxLength: 80 }}
+            id={SEARCH_INPUT_ID}
+            type="search"
+            value={searchQuery}
+            onChange={(event) => onSearchQueryChange(event.target.value)}
+            placeholder="Buscar..."
+            inputProps={{ 'aria-label': 'Buscar tareas independientes', autoComplete: 'off', maxLength: 80 }}
             sx={{
               flex: 1,
               minWidth: 0,
@@ -82,8 +77,8 @@ export function IndependentTasksCard({ tasks, quickTitle, onQuickTitleChange, on
             }}
           />
           <ButtonBase
-            type="submit"
-            aria-label="Agregar tarea"
+            type="button"
+            aria-label="Buscar tareas independientes"
             sx={{
               width: 44,
               height: 44,
@@ -93,13 +88,13 @@ export function IndependentTasksCard({ tasks, quickTitle, onQuickTitleChange, on
               '&:hover': { backgroundImage: hoverLayer },
             }}
           >
-            <AssetIcon icon={taskIcons.addQuick} />
+            <AssetIcon icon={taskIcons.search} />
           </ButtonBase>
         </Box>
       </Box>
 
-      {tasks.length > 0 ? (
-        <TaskList tasks={tasks} label="Tareas independientes" />
+      {visibleTasks.length > 0 ? (
+        <TaskList tasks={visibleTasks} label="Tareas independientes" />
       ) : (
         <Box sx={{ py: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, textAlign: 'center' }}>
           <Box
@@ -116,17 +111,17 @@ export function IndependentTasksCard({ tasks, quickTitle, onQuickTitleChange, on
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.75, lineHeight: 'normal' }}>
             <Typography sx={{ fontSize: 16, fontWeight: 700, lineHeight: 'normal' }}>
-              Aún no hay tareas independientes
+              {tasks.length > 0 ? 'No hay coincidencias' : 'Aún no hay tareas independientes'}
             </Typography>
             <Typography sx={{ maxWidth: 320, fontSize: 13, lineHeight: 'normal', color: 'text.secondary' }}>
-              Escribe una tarea arriba o pulsa el botón para comenzar a configurar tu día.
+              {tasks.length > 0 ? 'Prueba otra búsqueda.' : 'Escribe una tarea arriba o pulsa el botón para comenzar a configurar tu día.'}
             </Typography>
           </Box>
         </Box>
       )}
 
       <ButtonBase
-        onClick={() => onAddTask('')}
+        onClick={onAddTask}
         sx={{
           width: '100%',
           py: 1.75,

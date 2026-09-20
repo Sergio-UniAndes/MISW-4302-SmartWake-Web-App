@@ -1,7 +1,8 @@
 import { createBrowserRouter, Navigate } from 'react-router'
 import { AlarmsPage } from './features/alarms/AlarmsPage'
-import { ComingSoonPage } from './features/coming-soon/ComingSoonPage'
 import { LinkDevicePage } from './features/link-device/LinkDevicePage'
+import { LocationsPage } from './features/locations/LocationsPage'
+import { StatisticsPage } from './features/statistics/StatisticsPage'
 import { TasksPage } from './features/tasks/TasksPage'
 import { AppShell } from './layout/AppShell'
 import { paths } from './routes'
@@ -15,8 +16,8 @@ export const router = createBrowserRouter([
     children: [
       { path: paths.alarms, element: <AlarmsPage /> },
       { path: paths.collections, element: <TasksPage /> },
-      { path: paths.locations, element: <ComingSoonPage title="Ubicaciones" /> },
-      { path: paths.statistics, element: <ComingSoonPage title="Estadísticas" /> },
+      { path: paths.locations, element: <LocationsPage /> },
+      { path: paths.statistics, element: <StatisticsPage /> },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },

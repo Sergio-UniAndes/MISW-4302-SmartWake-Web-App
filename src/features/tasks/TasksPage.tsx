@@ -13,7 +13,7 @@ import { addIndependentTask, addTag, useTasksState } from './tasksStore'
 // Figma: "Vista Gestión de Tareas" — base (310:993), after creating a task (363:348) and a tag (363:497).
 export function TasksPage() {
   const { tags, suggestedTasks, independentTasks } = useTasksState()
-  const [quickTitle, setQuickTitle] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
   const [taskDialog, setTaskDialog] = useState({ open: false, key: 0, initialTitle: '' })
   const [tagDialog, setTagDialog] = useState({ open: false, key: 0 })
 
@@ -63,9 +63,9 @@ export function TasksPage() {
           <SuggestedTasksCard tasks={suggestedTasks} tags={tags} onCreateTag={openTagDialog} />
           <IndependentTasksCard
             tasks={independentTasks}
-            quickTitle={quickTitle}
-            onQuickTitleChange={setQuickTitle}
-            onAddTask={openTaskDialog}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            onAddTask={() => openTaskDialog('')}
           />
         </Box>
       </Box>
@@ -80,7 +80,6 @@ export function TasksPage() {
         onClose={closeTaskDialog}
         onCreate={(task) => {
           addIndependentTask(task)
-          setQuickTitle('')
           closeTaskDialog()
         }}
       />
